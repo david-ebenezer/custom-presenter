@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin</title>
+  <style>
+    #container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    #lyrics {
+      width: 400px;
+      height: 200px;
+      margin-bottom: 10px;
+    }
+
+    .lyrics-btn {
+      display: block;
+      margin-bottom: 10px;
+      white-space: pre-line;
+    }
+
+    .lyrics-container {
+      display: flex;
+      flex-wrap: wrap;
+      overflow-x: auto;
+    }
+
+    .lyrics-column {
+      flex: 0 0 auto;
+      padding-right: 20px;
+      border: 1px solid black;
+    }
+
+    .lyrics-column > button {
+      width: 100%;
+    }
+  </style>
+</head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Madurai:wght@700&display=swap" rel="stylesheet">
+<body>
+  <div id="container">
+    <textarea id="lyrics" placeholder="Enter song lyrics here" rows="10" cols="50"></textarea>
+    <div>
+      <button onclick="clearText()">Clear Text</button>
+      <button onclick="splitLyrics()">Split Lyrics</button>
+    </div>
+    <div id="lyrics-container" class="lyrics-container"></div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var socket = io(); // Connect to the WebSocket server
+
+    function splitLyrics() {
+      var lyrics = document.getElementById('lyrics').value;
+      var paragraphs = lyrics.split('\n\n');
+      var lyricsContainer = document.getElementById('lyrics-container');
+      lyricsContainer.innerHTML = ''; // Clear previous lyrics
+
+      for (var i = 0; i < paragraphs.length; i++) {
+        var paragraph = paragraphs[i].trim();
+        if (paragraph !== '') {
+          var columnDiv = document.createElement('div');
+          columnDiv.className = 'lyrics-column';
+
+          var lines = paragraph.split('\n');
+          for (var j = 0; j < lines.length; j += 2) {
+            var line1 = lines[j] ? lines[j].trim() : '';
+            var line2 = lines[j + 1] ? lines[j + 1].trim() : '';
+            var combinedLines = line1 + '\n' + line2;
+
+            if (combinedLines !== '\n') {
+              var btn = document.createElement('button');
+              btn.className = 'lyrics-btn';
+              btn.textContent = combinedLines;
+              btn.onclick = changeHeaderText.bind(null, line1, line2);
+              columnDiv.appendChild(btn);
+            }
+          }
+
+          lyricsContainer.appendChild(columnDiv);
+        }
+      }
+    }
+
+    function changeHeaderText(line1, line2) {
+      socket.emit('adminButtonClick', { line1, line2 }); // Send the data to the server
+    }
+
+    function clearText() {
+      var lyricsContainer = document.getElementById('lyrics-container');
+      lyricsContainer.innerHTML = '';
+      var lyrics = document.getElementById('lyrics');
+      lyrics.value = '';
+    }
+  </script>
+</body>
+</html>
