@@ -5,7 +5,8 @@
   "main": "y",
   "scripts": {
     "test": "y",
-    "start": "node index.js"
+    "start": "node index.js",
+    "build": "node index.js"
   },
   "repository": {
     "type": "git",
