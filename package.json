@@ -2,11 +2,11 @@
   "name": "y",
   "version": "1.0.0",
   "description": "y",
-  "main": "y",
+  "main": "index.js",
   "scripts": {
-    "test": "y",
-    "start": "node index.js",
-    "build": "node index.js"
+    "dev": "node index.js",
+    "build": "echo 'Nothing to build'",
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
@@ -21,5 +21,22 @@
     "express": "^4.18.2",
     "http": "^0.0.1-security",
     "socket.io": "^4.7.1"
+  },
+  "engines": {
+    "node": "16.x"
+  },
+  "vercel": {
+    "builds": [
+      {
+        "src": "index.js",
+        "use": "@vercel/node"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/(.*)",
+        "dest": "/index.js"
+      }
+    ]
   }
 }
