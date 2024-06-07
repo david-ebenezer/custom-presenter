@@ -44,10 +44,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Hind+Madurai:wght@700&display=swap" rel="stylesheet">
 <body>
   <div id="container">
-    <textarea id="lyrics" placeholder="Enter song lyrics here" rows="10" cols="50"></textarea>
+    <textarea id="lyrics" placeholder="Write the Content for Presentation" rows="10" cols="50"></textarea>
     <div>
       <button onclick="clearText()">Clear Text</button>
-      <button onclick="splitLyrics()">Split Lyrics</button>
+      <button onclick="splitLyrics()">Split Content</button>
     </div>
     <div id="lyrics-container" class="lyrics-container"></div>
   </div>
@@ -69,9 +69,11 @@
           columnDiv.className = 'lyrics-column';
 
           var lines = paragraph.split('\n');
-          for (var j = 0; j < lines.length; j += 2) {
-            var line1 = lines[j] ? lines[j].trim() : '';
-            var line2 = lines[j + 1] ? lines[j + 1].trim() : '';
+          var line1 = lines[0] ? lines[0].trim() : '';
+          var line2 = "";
+          for (var j = 1; j < lines.length; j++) {
+            line2 += lines[j ] ? lines[j ].trim()+'\n' : '';
+            }
             var combinedLines = line1 + '\n' + line2;
 
             if (combinedLines !== '\n') {
@@ -81,7 +83,6 @@
               btn.onclick = changeHeaderText.bind(null, line1, line2);
               columnDiv.appendChild(btn);
             }
-          }
 
           lyricsContainer.appendChild(columnDiv);
         }

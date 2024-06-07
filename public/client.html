@@ -1,87 +1,45 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Lyrics Viewer Client</title>
+  <title>Presenter Display</title>
   <style>
-    @import url("https://fonts.googleapis.com/css?family=Luckiest+Guy&display=swap");
-
-    body,
-    html {
-        background: radial-gradient(
-            circle,
-            rgba(255, 252, 0, 1) 0%,
-            rgba(240, 237, 23, 1) 100%
-        );
-        height: 100%;
-    }
-
-    body {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        font-family: "Luckiest Guy", cursive;
-    }
-
     h1 {
-        margin: 0;
-        font-size: 8em;
-        padding: 0;
-        color: white;
-        text-shadow: 0 0.1em 20px rgba(0, 0, 0, 1), 0.05em -0.03em 0 rgba(0, 0, 0, 1),
-            0.05em 0.005em 0 rgba(0, 0, 0, 1), 0em 0.08em 0 rgba(0, 0, 0, 1),
-            0.05em 0.08em 0 rgba(0, 0, 0, 1), 0px -0.03em 0 rgba(0, 0, 0, 1),
-            -0.03em -0.03em 0 rgba(0, 0, 0, 1), -0.03em 0.08em 0 rgba(0, 0, 0, 1), -0.03em 0 0 rgba(0, 0, 0, 1);
+      font-family: 'Hind Madurai', sans-serif;
+      font-size: 52px;
+      /* text-align: center; */
+    }
+    p {
+      font-weight: 300;
+      font-family: 'Hind Madurai', sans-serif;
     }
 
-    h1 span {
-        transform: scale(0.9);
-        display: inline-block;
-        justify-content: center;
-        align-items: center;
+    .Blue {
+      background-color: rgb(36, 36, 36);
+      position: fixed;
+      top: 0;
+      padding: 5vh;
+      left: 0;
+      width: 100%;
+      color: white;
+      height: 100vh;
+      display: flex;
+      flex-direction: column; /* Changed from row to column */
+      justify-content: top;
+      align-items: start;
     }
 
-    h1 span:first-child {
-        animation: bop 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards infinite alternate;
-    }
-
-    h1 span:last-child {
-        animation: bopB 1s 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards infinite alternate;
-    }
-
-    @keyframes bop {
-        0% {
-            transform: scale(0.9);
-        }
-        50%,
-        100% {
-            transform: scale(1);
-        }
-    }
-
-    @keyframes bopB {
-        0% {
-            transform: scale(0.9);
-        }
-        80%,
-        100% {
-            transform: scale(1) rotateZ(-3deg);
-        }
+    .Blue p {
+      font-size: 30px; /* Adjust font size as needed */
     }
   </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Madurai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Hind+Madurai:wght@700&display=swap" rel="stylesheet">
 <body>
-  <div class="Blue"></div>
-
-  <h1 id="header-text">
-    <span>Shout to the North</span><br>
-  </h1>
-  <h1 id="header-text2">
-    <span>and the South</span>
-  </h1>
+  <div class="Blue">
+    <div id="header-text"></div>
+  </div>
 
   <script src="/socket.io/socket.io.js"></script>
   <script>
@@ -89,23 +47,28 @@
 
     // Event listener for header update from the server
     socket.on('headerUpdate', (data) => {
-      var headerText1 = document.getElementById('header-text');
-      var headerText2 = document.getElementById('header-text2');
+      var headerText = document.getElementById('header-text');
+      headerText.innerHTML = '';
 
-      headerText1.innerHTML = '';
-      headerText2.innerHTML = '';
+      var divforcontext = document.createElement('div');
+      divforcontext.style.marginLeft = '3em'; // Add left margin
 
       if (data.line1) {
-        var line1Span = document.createElement('span');
+        var line1Span = document.createElement('h1');
         line1Span.textContent = data.line1;
-        headerText1.appendChild(line1Span);
-        headerText1.innerHTML += "<br>"; // Add a line break
+        headerText.appendChild(line1Span);
       }
 
       if (data.line2) {
-        var line2Span = document.createElement('span');
-        line2Span.textContent = data.line2;
-        headerText2.appendChild(line2Span);
+        data.line2 = data.line2.trim();
+        var contextContent = data.line2.split("\n");
+        console.log(contextContent);
+        for (var i = 0; i < contextContent.length; i++) {
+          var line2Span = document.createElement('p');
+          line2Span.textContent = contextContent[i];
+          divforcontext.appendChild(line2Span);
+        }
+        headerText.appendChild(divforcontext);
       }
     });
   </script>
