@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin</title>
+  <style>
+    #container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    #lyrics {
+      width: 400px;
+      height: 200px;
+      margin-bottom: 10px;
+    }
+
+    .lyrics-btn {
+      display: block;
+      margin-bottom: 10px;
+      white-space: pre-line;
+    }
+
+    .lyrics-container {
+      display: flex;
+      flex-wrap: wrap;
+      overflow-x: auto;
+    }
+
+    .lyrics-column {
+      flex: 0 0 auto;
+      padding-right: 20px;
+      border: 1px solid black;
+    }
+
+    .lyrics-column > button {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <textarea id="lyrics" placeholder="Enter song lyrics here" rows="10" cols="50"></textarea>
+    <div>
+      <button onclick="clearText()">Clear Text</button>
+      <button onclick="splitLyrics()">Split Lyrics</button>
+    </div>
+    <div id="lyrics-container" class="lyrics-container"></div>
+  </div>
+
+  <script>
+    function splitLyrics() {
+      var lyrics = document.getElementById('lyrics').value;
+      var paragraphs = lyrics.split('\n\n');
+      var lyricsContainer = document.getElementById('lyrics-container');
+      lyricsContainer.innerHTML = '';
+
+      paragraphs.forEach(paragraph => {
+        var trimmedParagraph = paragraph.trim();
+        if (trimmedParagraph !== '') {
+          var columnDiv = document.createElement('div');
+          columnDiv.className = 'lyrics-column';
+
+          var lines = trimmedParagraph.split('\n');
+          for (let i = 0; i < lines.length; i += 2) {
+            let line1 = lines[i] ? lines[i].trim() : '';
+            let line2 = lines[i + 1] ? lines[i + 1].trim() : '';
+            let combinedLines = line1 + '\n' + line2;
+
+            if (combinedLines !== '\n') {
+              let btn = document.createElement('button');
+              btn.className = 'lyrics-btn';
+              btn.textContent = combinedLines;
+              btn.onclick = () => {
+                window.electron.sendTextUpdate({ line1, line2 }); // Send text to main process
+              };
+              columnDiv.appendChild(btn);
+            }
+          }
+
+          lyricsContainer.appendChild(columnDiv);
+        }
+      });
+    }
+
+    function clearText() {
+        window.electron.sendTextUpdate({ line1: "", line2: "" });
+    }
+  </script>
+</body>
+</html>
