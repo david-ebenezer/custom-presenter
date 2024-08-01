@@ -3,7 +3,7 @@
 <head>
   <title>Lyrics Viewer Client</title>
   <style>
-        @font-face {
+    @font-face {
       font-family: 'AnekTamil';
       src: url('AnekTamil-VariableFont_wdth,wght.ttf') format('truetype');
       font-weight: 100 900; /* Adjust weight range if needed */
@@ -11,31 +11,30 @@
     }
     body,
     html {
-        height: 100%;
-        margin: 0; /* Remove default margin */
-        padding: 0; /* Remove default padding */
-        overflow: hidden; /* Hide scrollbars */
+      height: 100%;
+      margin: 0; /* Remove default margin */
+      padding: 0; /* Remove default padding */
+      overflow: hidden; /* Hide scrollbars */
     }
 
     body {
-        display: flex;
-        flex-direction: column; /* Stack elements vertically */
-        justify-content: flex-start; /* Align items to the top */
-        align-items: center; /* Center items horizontally */
-        background-color: blue;
-        color: white;
-        text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 12px #000000, 0 0 12px #000000, 0 0 12px #000000, 0 0 10px #000000;
-        margin: 10px;
-        padding: 0;
+      display: flex;
+      flex-direction: column; /* Stack elements vertically */
+      justify-content: flex-start; /* Align items to the top */
+      align-items: center; /* Center items horizontally */
+      background-color: blue;
+      color: white;
+      text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 12px #000000, 0 0 12px #000000, 0 0 12px #000000, 0 0 10px #000000;
+      padding-top: 20vh; /* Adjust padding to lift h1 elements */
     }
 
     h1 {
       font-family: 'AnekTamil', sans-serif; 
-      font-size: 6vw;
+      font-size: 3.5vw;
+      font-weight: 700;
       text-align: center;
-      margin: 0; /* Remove default margin */
+      margin: 0; /* Remove margin */
     }
-
   </style>
 </head>
 <body>
