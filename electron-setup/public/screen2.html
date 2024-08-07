@@ -20,12 +20,18 @@
     body {
       display: flex;
       flex-direction: column; /* Stack elements vertically */
-      justify-content: flex-start; /* Align items to the top */
+      justify-content: flex-end; /* Align items to the bottom */
       align-items: center; /* Center items horizontally */
       background-color: blue;
       color: white;
       text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 12px #000000, 0 0 12px #000000, 0 0 12px #000000, 0 0 10px #000000;
-      padding-top: 20vh; /* Adjust padding to lift h1 elements */
+    }
+
+    .text-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center; /* Center items horizontally */
+      width: 100%; /* Full width of the container */
     }
 
     h1 {
@@ -34,16 +40,19 @@
       font-weight: 700;
       text-align: center;
       margin: 0; /* Remove margin */
+      padding: 0;
+    }
+    
+    #header-text, #header-text2 {
+      margin: 0;
     }
   </style>
 </head>
 <body>
-  <h1 id="header-text">
-    
-  </h1>
-  <h1 id="header-text2">
-
-  </h1>
+  <div class="text-container">
+    <h1 id="header-text"></h1>
+    <h1 id="header-text2"></h1>
+  </div>
   <script>
     window.electron.onTextUpdate((text) => {
       var headerText1 = document.getElementById('header-text');
@@ -56,7 +65,6 @@
         var line1Span = document.createElement('span');
         line1Span.textContent = text.line1;
         headerText1.appendChild(line1Span);
-        headerText1.innerHTML += "<br>";
       }
 
       if (text.line2) {
