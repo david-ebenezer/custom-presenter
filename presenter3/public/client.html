@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Presenter Display</title>
+  <style>
+    h1 {
+      font-family: 'Hind Madurai', sans-serif;
+      font-size: 10vh; /* Default font size */
+      color: white;
+      -webkit-background-clip: text;
+      background-clip: text;
+      text-align: center;
+      width: 100%;
+      white-space: normal; /* Allow text to wrap */
+      overflow-wrap: break-word; /* Ensure long words break */
+      line-height: 1.2; /* Adjust line height for better readability */
+    }
+
+    p {
+      font-weight: 300;
+      font-family: 'Hind Madurai', sans-serif;
+    }
+
+    .Blue {
+      background-color: rgb(36, 36, 36);
+      position: fixed;
+      top: 0;
+      padding: 3vh;
+      left: 0;
+      width: 100%;
+      color: white;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center; /* Center vertically */
+      align-items: center; /* Center horizontally */
+      overflow: hidden; /* Prevent scrolling */
+    }
+
+    .Blue p {
+      font-size: 30px;
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Hind+Madurai:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="Blue">
+    <div id="header-text"></div>
+  </div>
+
+  <script>
+    // Function to resize text to fit the container
+    function resizeText(element) {
+      const maxHeight = window.innerHeight * 0.96; // 90% of viewport height
+      const maxWidth = window.innerWidth * 0.96; // 90% of viewport width
+      let fontSize = 14; // Starting font size in vh
+      let lineHeight = 1.2; // Default line height
+
+      element.style.fontSize = fontSize + 'vh';
+      element.style.lineHeight = lineHeight;
+
+      while (
+        ( element.scrollHeight > maxHeight) &&
+        fontSize > 1 // Avoid font size going too small
+      ) {
+        fontSize -= 0.5; // Reduce font size gradually
+        element.style.fontSize = fontSize + 'vh';
+      }
+
+      // Adjust line height if needed
+      if (element.scrollHeight > maxHeight) {
+        lineHeight -= 0.05; // Reduce line height gradually
+        element.style.lineHeight = lineHeight;
+      }
+    }
+
+    // Function to fetch the latest data every 500ms
+    async function fetchData() {
+      try {
+        const response = await fetch('/get-data');
+        const data = await response.json();
+
+        var headerText = document.getElementById('header-text');
+        headerText.innerHTML = '';
+
+        if (data.line1) {
+          var line1Span = document.createElement('h1');
+          line1Span.innerHTML = data.line1.replace(/\n/g, '<br>'); // Replace '\n' with '<br>'
+          headerText.appendChild(line1Span);
+          resizeText(line1Span); // Adjust the font size and line height to fit
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    }
+
+    // Fetch data every 500ms
+    setInterval(fetchData, 500);
+
+    // Ensure text is resized when the window is resized
+    window.addEventListener('resize', () => {
+      const headerText = document.getElementById('header-text').querySelector('h1');
+      if (headerText) {
+        resizeText(headerText);
+      }
+    });
+  </script>
+</body>
+</html>
