@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <title>Presenter Content</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css" integrity="sha512-YWzhKL2whUzgiheMoBFwW8CKV4qpHQAEuvilg9FAn5VJUDwKZZxkJNuGM4XkWuk94WCrrwslk8yWNGmY1EduTA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style> 
+#container {
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+    font-size: 14px;
+  }
+
+  #lyrics {
+    
+    width: 400px;
+    height: 200px;
+    font-size: 14px;
+    margin-bottom: 10px;
+    border: 0;
+    outline: 0;
+    padding: 1em;
+    border-radius: 8px;
+    display: block;
+    /* width: 100%; */
+    margin-top: 1em;
+    /* font-family: 'Merriweather', sans-serif; */
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+    resize: none;
+  }
+
+  #lyrics:focus {
+    box-shadow: 0 0px 2px rgb(140, 140, 140) !important;
+  }
+
+
+.button-4 {
+  appearance: none;
+  background-color: #FAFBFC;
+  border: 1px solid rgba(27, 31, 35, 0.15);
+  border-radius: 6px;
+  box-shadow: rgba(27, 31, 35, 0.04) 0 1px 0, rgba(255, 255, 255, 0.25) 0 1px 0 inset;
+  box-sizing: border-box;
+  color: #24292E;
+  cursor: pointer;
+  display: inline-block;
+  /* font-family: -apple-system, system-ui, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji"; */
+  /* font-size: 14px; */
+  font-weight: 500;
+  line-height: 20px;
+  list-style: none;
+  padding: 6px 16px;
+  position: relative;
+  transition: background-color 0.2s cubic-bezier(0.3, 0, 0.5, 1);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  vertical-align: middle;
+  white-space: nowrap;
+  word-wrap: break-word;
+}
+
+.button-4:hover {
+  background-color: #F3F4F6;
+  text-decoration: none;
+  transition-duration: 0.1s;
+}
+
+.button-4:disabled {
+  background-color: #FAFBFC;
+  border-color: rgba(27, 31, 35, 0.15);
+  color: #959DA5;
+  cursor: default;
+}
+
+.button-4:active {
+  background-color: #EDEFF2;
+  box-shadow: rgba(225, 228, 232, 0.2) 0 1px 0 inset;
+  transition: none 0s;
+}
+
+.button-4:focus {
+  outline: 1px transparent;
+}
+
+.button-4:before {
+  display: none;
+}
+
+.button-4:-webkit-details-marker {
+  display: none;
+}
+/* CSS */
+.button-17 {
+  align-items: center;
+  appearance: none;
+  background-color: #fff;
+  border-radius: 24px;
+  border-style: none;
+  box-shadow: rgba(0, 0, 0, .2) 0 3px 5px -1px,rgba(0, 0, 0, .14) 0 6px 10px 0,rgba(0, 0, 0, .12) 0 1px 18px 0;
+  box-sizing: border-box;
+  color: #3c4043;
+  cursor: pointer;
+  display: inline-flex;
+  fill: currentcolor;
+
+  font-size: 14px;
+  font-weight: 500;
+  height: 48px;
+  justify-content: center;
+  letter-spacing: .25px;
+  line-height: normal;
+  max-width: 100%;
+  overflow: visible;
+  padding: 2px 24px;
+  position: relative;
+  text-align: center;
+  text-transform: none;
+  transition: box-shadow 280ms cubic-bezier(.4, 0, .2, 1),opacity 15ms linear 30ms,transform 270ms cubic-bezier(0, 0, .2, 1) 0ms;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  width: auto;
+  will-change: transform,opacity;
+  z-index: 0;
+}
+
+/* Container for lyrics buttons */
+.lyrics-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow-y: auto;
+  width: 100%;
+  /* max-height: 400px; */
+  padding: 0 10px; /* Adds padding on the sides */
+}
+/* Style for each lyrics button */.lyrics-btn {
+  align-items: center;
+  background-color: #fff;
+  border-radius: 12px;
+  width: 400px; /* Ensures consistent width */
+  max-width: 400px; /* Limit the maximum width */
+  box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+  box-sizing: border-box;
+  color: #121212;
+  cursor: pointer;
+  display: flex; /* Use Flexbox for alignment */
+  justify-content: center; /* Center the text */
+  font-family: Inter, sans-serif;
+  font-size: 1rem; /* Adjusted font size */
+  font-weight: 300;
+  line-height: 1.5; /* Improved line height for readability */
+  margin: 5px 0; /* Space between buttons */
+  outline: none;
+  padding: 1rem 1.2rem;
+  text-align: center;
+  transition: box-shadow 0.2s ease-in-out;
+  white-space: normal; /* Allows text to wrap within the button */
+  border: 0;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  overflow-wrap: break-word; /* Ensures words break properly */
+  word-break: break-word; /* Breaks words that are too long */
+}
+
+/* Hover effect for buttons */
+.lyrics-btn:hover {
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 6px 16px;
+}
+/* Responsive design for smaller screens */
+@media (max-width: 768px) {
+  .lyrics-btn {
+    font-size: 0.9rem; /* Slightly smaller font size on smaller screens */
+    padding: 0.8rem 1rem; /* Adjusted padding */
+  }
+}
+
+html,
+body {
+min-height: 100vh;
+/* width: 100vw;
+height: 100vh;
+overflow: hidden; */
+}
+body {
+background-color: rgb(245, 245, 245);
+background-image: radial-gradient(
+    at 21% 57%,
+    rgb(255, 255, 255) 0px,
+    transparent 50%
+  ),
+  radial-gradient(at 33% 72%, rgb(255, 255, 255) 0px, transparent 50%),
+  radial-gradient(at 14% 84%, rgb(74, 231, 252) 0px, transparent 50%),
+  radial-gradient(at 82% 29%, rgb(255, 255, 255) 0px, transparent 50%),
+  radial-gradient(at 78% 61%, rgb(255, 255, 255) 0px, transparent 50%),
+  radial-gradient(at 77% 19%, rgb(255, 255, 255) 0px, transparent 50%);
+}
+*{
+font-family: "Red Hat Display", sans-serif;
+font-style: normal;
+}
+
+header {
+    position: fixed; /* Fixes the header at the top */
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: white; /* Optional: Set a background color */
+    z-index: 1000; /* Ensures it stays on top of other elements */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Optional: Adds a shadow for better visibility */
+}
+
+body {
+    padding-top: 30px; /* Adjust according to the height of your navbar */
+}
+.logo{
+color: white;
+font-size: 140%;
+letter-spacing: 0.03em;
+font-weight: 800;
+}
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul class='nav-bar'>
+                <li class="logo">Presenter</li>
+                <input type='checkbox' id='check' />
+                <span class="menu" id="dynamic-menu">
+                    <!-- Dynamic menu items will be inserted here -->
+                    <label for="check" class="close-menu"><i class="fas fa-times"></i></label>
+                </span>
+                <label for="check" class="open-menu"><i class="fas fa-bars"></i></label>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="container">
+        <textarea id="lyrics" placeholder="Write the Content for Presentation" rows="10" cols="50"></textarea>
+        <div id="button-container">
+            <button onclick="clearText()" class="button-4">Clear Text</button>
+            <button onclick="splitLyrics()" class="button-4">Update Slides</button>
+        </div>
+        <div id="lyrics-container" class="lyrics-container"></div>
+    </div>
+    
+
+    <script>
+       async function sendUpdate(line1, line2, button) {
+    try {
+        const response = await fetch('/admin/update', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ line1, line2 })
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to send update');
+        }
+
+        // Set the button color to gray after a successful response
+        button.style.backgroundColor = '#D3D3D3'; // Light gray
+
+        // Reset the color of other buttons
+        const allButtons = document.querySelectorAll('.lyrics-btn');
+        allButtons.forEach(btn => {
+            if (btn !== button) {
+                btn.style.backgroundColor = ''; // Reset to default
+            }
+        });
+    } catch (error) {
+        console.error('Error sending update:', error);
+        alert('An error occurred while sending the update.');
+    }
+}
+
+
+        // Fetch the list of lyrics files and generate menu items
+        async function loadLyricsFiles() {
+    try {
+        const response = await fetch('/lyrics-files');
+        const files = await response.json();
+
+        const menu = document.getElementById('dynamic-menu');
+        files.forEach(filename => {
+            const li = document.createElement('li');
+            const a = document.createElement('a');
+            a.href = '#';  // You can set this to any appropriate link
+            const displayName = filename.replace(/\.[^/.]+$/, ""); // Regular expression to remove the extension
+            a.textContent = displayName;
+            a.onclick = () => {
+                loadLyricsContent(filename);
+                closeMobileMenu(); // Call function to close the menu on click
+            }; 
+            li.appendChild(a);
+            menu.insertBefore(li, menu.querySelector('.close-menu')); // Insert before close button
+        });
+    } catch (error) {
+        console.error('Error loading lyrics files:', error);
+    }
+}
+
+// Close the mobile menu by unchecking the checkbox
+function closeMobileMenu() {
+    const checkbox = document.getElementById('check');
+    checkbox.checked = false; // Uncheck the checkbox to close the menu
+}
+
+// Call this function to close the menu when any menu item is clicked
+document.querySelectorAll('.nav-bar li a').forEach(item => {
+    item.addEventListener('click', closeMobileMenu);
+});
+
+
+        // Fetch the content of the selected file and populate the textarea
+        async function loadLyricsContent(filename) {
+            try {
+                const response = await fetch(`/lyrics-content?filename=${encodeURIComponent(filename)}`);
+                const data = await response.json();
+                document.getElementById('lyrics').value = data.content;
+                splitLyrics();
+            } catch (error) {
+                console.error('Error loading lyrics content:', error);
+            }
+        }
+
+//         function splitLyrics() {
+//     const lyrics = document.getElementById('lyrics').value;
+//     const paragraphs = lyrics.split('\n\n');
+//     const lyricsContainer = document.getElementById('lyrics-container');
+//     lyricsContainer.innerHTML = ''; // Clear previous lyrics
+
+//     paragraphs.forEach(paragraph => {
+//         const trimmedParagraph = paragraph.trim();
+//         if (trimmedParagraph !== '') {
+//             const columnDiv = document.createElement('div');
+//             columnDiv.className = 'lyrics-column';
+
+//             const lines = trimmedParagraph.split('\n');
+//             const line1 = lines[0] ? lines[0].trim() : '';
+//             const line2 = lines.slice(1).join('\n').trim();
+
+//             if (line1 || line2) {
+//                 const btn = document.createElement('button');
+//                 btn.className = 'lyrics-btn';
+//                 btn.innerHTML = `${line1}${line2}`;
+//                 btn.innerHTML = btn.innerHTML.replace(/\n/g, '<br>');
+//                 btn.onclick = () => sendUpdate(`${line1}\n${line2}`, '', btn); // Pass button reference
+//                 columnDiv.appendChild(btn);
+//             }
+
+//             lyricsContainer.appendChild(columnDiv);
+//         }
+//     });
+// }
+
+function splitLyrics() {
+    const lyrics = document.getElementById('lyrics').value;
+    const paragraphs = lyrics.split('\n\n'); // Split by double line breaks to separate paragraphs
+    const lyricsContainer = document.getElementById('lyrics-container');
+    lyricsContainer.innerHTML = ''; // Clear previous lyrics
+
+    paragraphs.forEach(paragraph => {
+        const trimmedParagraph = paragraph.trim();
+        if (trimmedParagraph !== '') {
+            const lines = trimmedParagraph.split('\n');
+            const btn = document.createElement('button');
+            btn.className = 'lyrics-btn';
+            
+            // Join lines with <br> for proper line breaks within button
+            btn.innerHTML = lines.map(line => line.trim()).join('<br>'); 
+
+            // Attach click event
+            btn.onclick = () => sendUpdate(trimmedParagraph, '', btn); // Send entire paragraph as content
+            lyricsContainer.appendChild(btn);
+        }
+    });
+}
+
+
+        function clearText() {
+            document.getElementById('lyrics').value = '';
+            sendUpdate('', ''); // Clear the display
+        }
+
+        // Load the lyrics files on page load
+        loadLyricsFiles();
+    </script>
+</body>
+</html>
