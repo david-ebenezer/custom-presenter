@@ -46,10 +46,24 @@
       <button onclick="clearText()">Clear Text</button>
       <button onclick="splitLyrics()">Split Lyrics</button>
     </div>
+    <button id="select-video">Select Video</button>
+    <p id="video-path">No video selected</p>
+  
     <div id="lyrics-container" class="lyrics-container"></div>
   </div>
 
   <script>
+    const selectVideoBtn = document.getElementById('select-video');
+    const videoPathElement = document.getElementById('video-path');
+    
+    selectVideoBtn.addEventListener('click', async () => {
+      const filePath = await window.electronAPI.openFile();
+      if (filePath) {
+        videoPathElement.innerText = `Selected Video Path: ${filePath}`;
+        // Send the selected file path to the screen window for playback
+        window.ipcRenderer.send('play-video', filePath);
+      }
+    });
     function splitLyrics() {
       var lyrics = document.getElementById('lyrics').value;
       var paragraphs = lyrics.split('\n\n');
