@@ -6,73 +6,79 @@
     @font-face {
       font-family: 'AnekTamil';
       src: url('AnekTamil-VariableFont_wdth,wght.ttf') format('truetype');
-      font-weight: 100 900; /* Adjust weight range if needed */
-      font-stretch: 50% 200%; /* Adjust width range if needed */
+      font-weight: 100 900;
+      font-stretch: 50% 200%;
     }
-
     body,
     html {
         height: 100%;
-        margin: 0; /* Remove default margin */
-        padding: 0; /* Remove default padding */
-        overflow: hidden; /* Hide scrollbars */
-        position: relative; /* Position relative for the video container */
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        position: relative;
     }
-
-    .background-video {
-        position: absolute; /* Position absolute to cover the viewport */
+    #video-background {
+        position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        object-fit: cover; /* Cover the viewport */
-        z-index: -1; /* Place video behind the content */
+        object-fit: contain;
+        background-color: black; /* This ensures no transparent background */
+        z-index: -1;
     }
-
-    body {
+    .content {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
         display: flex;
-        flex-direction: column; /* Stack elements vertically */
-        justify-content: flex-start; /* Align items to the top */
-        align-items: center; /* Center items horizontally */
-        color: white;
-        text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 12px #000000, 0 0 12px #000000, 0 0 12px #000000, 0 0 10px #000000;
-        margin: 0; /* Remove margin */
-        padding: 0; /* Remove padding */
+        flex-direction: column;
+        justify-content: center; /* Center content vertically */
+        align-items: center;
+        z-index: 1;
     }
-
     h1 {
       font-family: 'AnekTamil', sans-serif;
       font-size: 5.3vw;
       font-weight: 700;
       text-align: center;
-      margin: 1vh; 
+      margin: 1vh;
+      color: white;
+      text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 12px #000000, 0 0 12px #000000, 0 0 12px #000000, 0 0 10px #000000;
     }
   </style>
 </head>
 <body>
-  <video class="background-video" autoplay muted loop>
-    <source src="BG.mp4" type="video/mp4">
-    Your browser does not support the video tag.
-  </video>
+  <video id="video-background" autoplay loop src="BG.mp4"></video>
   
-  <h1 id="header-text"></h1>
-  <h1 id="header-text2"></h1>
+  <div class="content">
+    <h1 id="header-text"></h1>
+    <h1 id="header-text2"></h1>
+  </div>
 
   <script>
+    const videoBackground = document.getElementById('video-background');
+    
+    window.ipcRenderer.on('play-video', (videoPath) => {
+      console.log("Video path received:", videoPath);
+      const formattedPath = `file://${videoPath.replace(/\\/g, '/')}`;
+      videoBackground.src = formattedPath;
+      videoBackground.play();
+    });
+
     window.electron.onTextUpdate((text) => {
       var headerText1 = document.getElementById('header-text');
       var headerText2 = document.getElementById('header-text2');
-
       headerText1.innerHTML = '';
       headerText2.innerHTML = '';
-
       if (text.line1) {
         var line1Span = document.createElement('span');
         line1Span.textContent = text.line1;
         headerText1.appendChild(line1Span);
         headerText1.innerHTML += "<br>";
       }
-
       if (text.line2) {
         var line2Span = document.createElement('span');
         line2Span.textContent = text.line2;

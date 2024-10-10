@@ -51,7 +51,7 @@
 </head>
 <body>
   <video class="background-video" autoplay muted loop>
-    <source src="BG.mp4" type="video/mp4">
+    <source src="BG.mp4" id="video-player" type="video/mp4">
     Your browser does not support the video tag.
   </video>
   
@@ -59,6 +59,15 @@
   <h1 id="header-text2"></h1>
 
   <script>
+    const videoPlayer = document.getElementById('video-player');
+
+    // Listen for 'play-video' event and set the video source
+    window.ipcRenderer.on('play-video', (videoPath) => {
+      console.log("Asdfasd");
+      const formattedPath = `file://${videoPath.replace(/\\/g, '/')}`; // Escape backslashes
+      videoPlayer.src = formattedPath; // Set the video source
+      videoPlayer.play(); // Start playing the video
+    });
     window.electron.onTextUpdate((text) => {
       var headerText1 = document.getElementById('header-text');
       var headerText2 = document.getElementById('header-text2');
