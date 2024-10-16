@@ -1,12 +1,12 @@
 {
-  "name": "lyricspresenter2withbg",
+  "name": "Presenter3beta",
   "version": "1.0.0",
   "main": "main.js",
   "scripts": {
     "start": "electron main.js",
     "build": "electron-builder",
     "dev": "cross-env NODE_ENV=development electron .",
-    "dist": "electron-builder --win"
+    "dist": "electron-builder --win --mac --linux"
   },
   "build": {
     "appId": "com.example.myapp",
@@ -27,7 +27,21 @@
           ]
         }
       ]
+    },
+
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Utility",
+      "maintainer": "David Ebenezer <davidebenezerp@gmail.com>"
     }
+  },
+  "homepage": "https://github.com/david-ebenezer/lyricspresenter2withbg",
+  "author": {
+    "name": "David Ebenezer",
+    "email": "davidebenezerp@gmail.com"
   },
   "devDependencies": {
     "electron": "^24.1.0",

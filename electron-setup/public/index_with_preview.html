@@ -3,6 +3,38 @@
 <head>
   <title>Admin</title>
   <style>
+
+@font-face {
+      font-family: 'AnekTamil';
+      src: url('AnekTamil-VariableFont_wdth,wght.ttf') format('truetype');
+      font-weight: 100 900;
+      font-stretch: 50% 200%;
+    }
+
+    .Blue {
+      background-color: blue;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      color: white;
+      text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 12px #000000,0 0 12px #000000,0 0 12px #000000, 0 0 10px #000000;
+      height: 200px;
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+    }
+    h1 {
+      font-family: 'AnekTamil', sans-serif;
+      font-size: 3vw;
+      font-weight: 700;
+      text-align: center;
+      margin: 1vh;
+      color: white;
+      text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 12px #000000, 0 0 12px #000000, 0 0 12px #000000, 0 0 10px #000000;
+    }
     #container {
       display: flex;
       flex-direction: column;
@@ -40,7 +72,9 @@
   </style>
 </head>
 <body>
-
+  <div class="Blue">
+    <h1 id="header-text"></h1>
+  </div>
   <div id="container">
     <textarea id="lyrics" placeholder="Enter song lyrics here" rows="10" cols="50"></textarea>
     <div>
@@ -88,7 +122,7 @@
               btn.className = 'lyrics-btn';
               btn.textContent = combinedLines;
               btn.onclick = () => {
-                
+                changeHeaderText(line1,line2)
                 window.electron.sendTextUpdate({ line1, line2 }); // Send text to main process
               };
               columnDiv.appendChild(btn);
@@ -99,8 +133,27 @@
         }
       });
     }
-
+    function changeHeaderText(line1, line2) {
+      var headerText = document.getElementById('header-text');
+      headerText.innerHTML = ''; // Clear previous text
+      
+      if (line1) {
+        var line1Span = document.createElement('span');
+        line1Span.textContent = line1;
+        headerText.appendChild(line1Span);
+      }
+      
+      if (line2) {
+        var br = document.createElement('br');
+        headerText.appendChild(br);
+        
+        var line2Span = document.createElement('span');
+        line2Span.textContent = line2;
+        headerText.appendChild(line2Span);
+      }
+    }
     function clearText() {
+      changeHeaderText(" "," ")
         window.electron.sendTextUpdate({ line1: "", line2: "" });
     }
   </script>
