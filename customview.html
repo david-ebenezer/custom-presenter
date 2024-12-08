@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Gradient Background</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Mukta+Malar:wght@200;300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* Basic styling */
+    * {
+      font-family: "Mukta Malar", sans-serif;
+      color: white;
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end; /* Align elements to the bottom */
+      align-items: center;
+      background: linear-gradient(to top, rgb(1, 1, 97), rgb(0, 0, 255)); /* Subtle black shadow transitioning to blue */
+      font-weight: 300;
+      line-height: 1.6;
+      padding: 20px 50px 20px 50px;
+      height: 100vh;
+    }
+
+    p {
+      color: white; /* Ensure the text color is white */
+      text-align: center;
+      font-size: 2em;
+      margin: 5px 0;
+
+    }
+
+    .reference {
+      font-size: 1.4em;
+    }
+
+    /* Highlighted effect: hide the selection background */
+    ::selection {
+      background: transparent;
+      color: inherit;
+    }
+
+    ::-moz-selection {
+      background: transparent;
+      color: inherit;
+    }
+
+    /* Add a custom style to bold text */
+    .selected-bold {
+      font-weight: 1000;
+      color: #ffe1c5;
+    }
+  </style>
+</head>
+<body>
+  <p>
+    Verse
+  </p>
+  <p class="reference">
+    Reference
+  </p>
+
+  <script>
+    document.addEventListener("mouseup", () => {
+      const selection = window.getSelection();
+      const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+
+      if (range && !selection.isCollapsed) {
+        const span = document.createElement("span");
+        span.className = "selected-bold";
+        span.textContent = selection.toString();
+
+        range.deleteContents();
+        range.insertNode(span);
+
+        // Clear the selection
+        selection.removeAllRanges();
+      }
+    });
+  </script>
+</body>
+</html>
