@@ -24,7 +24,7 @@
         width: 100%;
         height: 100%;
         object-fit: contain;
-        background-color: black; /* This ensures no transparent background */
+        background-color: black;
         z-index: -1;
     }
     .content {
@@ -35,7 +35,7 @@
         height: 100%;
         display: flex;
         flex-direction: column;
-        /* justify-content: center; Center content vertically */
+        justify-content: center;
         align-items: center;
         z-index: 1;
     }
@@ -48,43 +48,186 @@
       color: white;
       text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 12px #000000, 0 0 12px #000000, 0 0 12px #000000, 0 0 10px #000000;
     }
+    #paragraph-div {
+      font-family: 'AnekTamil', sans-serif;
+      font-size: 3vw;
+      color: white;
+      text-align: center;
+      text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+      margin-top: 20px;
+    }
+    #position {
+      font-family: 'AnekTamil', sans-serif;
+      font-size: 3vw;
+      color: white;
+      text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+      position: absolute;
+      bottom: 20px;
+    }
   </style>
 </head>
 <body>
-  <video id="video-background" autoplay loop src="BG.mp4"></video>
+  <video id="video-background" autoplay loop playsinline></video>
   
   <div class="content">
     <h1 id="header-text"></h1>
     <h1 id="header-text2"></h1>
+    <!-- <div id="paragraph-div"></div> -->
   </div>
 
   <script>
-    const videoBackground = document.getElementById('video-background');
+    let currentVideo = document.getElementById('video-background');
     
-    window.ipcRenderer.on('play-video', (videoPath) => {
-      console.log("Video path received:", videoPath);
-      const formattedPath = `file://${videoPath.replace(/\\/g, '/')}`;
-      videoBackground.src = formattedPath;
-      videoBackground.play();
+    // Add event listeners for video debugging
+    currentVideo.addEventListener('error', (e) => {
+      console.error('Video error:', e.target.error);
     });
 
-    window.electron.onTextUpdate((text) => {
-      var headerText1 = document.getElementById('header-text');
-      var headerText2 = document.getElementById('header-text2');
-      headerText1.innerHTML = '';
-      headerText2.innerHTML = '';
-      if (text.line1) {
-        var line1Span = document.createElement('span');
-        line1Span.textContent = text.line1;
-        headerText1.appendChild(line1Span);
-        headerText1.innerHTML += "<br>";
+    currentVideo.addEventListener('loadeddata', () => {
+      console.log('Video loaded successfully');
+    });
+
+    // Function to play video
+    async function playVideo(videoPath) {
+      if (!videoPath) {
+        console.error('No video path provided');
+        return;
       }
-      if (text.line2) {
-        var line2Span = document.createElement('span');
-        line2Span.textContent = text.line2;
-        headerText2.appendChild(line2Span);
+
+      try {
+        console.log("Attempting to play video:", videoPath);
+        
+        // Format the path for the current platform
+        const formattedPath = `file://${videoPath.replace(/\\/g, '/')}`;
+        console.log("Formatted video path:", formattedPath);
+        
+        // Stop and cleanup current video
+        if (currentVideo) {
+          currentVideo.pause();
+          currentVideo.src = '';
+          currentVideo.load();
+        }
+        
+        // Create a new video element
+        const newVideo = document.createElement('video');
+        newVideo.id = 'video-background';
+        newVideo.autoplay = true;
+        newVideo.loop = true;
+        newVideo.playsinline = true;
+        newVideo.style.cssText = currentVideo.style.cssText;
+        
+        // Set up event listeners
+        newVideo.addEventListener('error', (e) => {
+          console.error('New video error:', e.target.error);
+        });
+        
+        newVideo.addEventListener('loadeddata', () => {
+          console.log('New video loaded successfully');
+          // Send initial duration to admin
+          window.ipcRenderer.send('video-time-update', {
+            currentTime: newVideo.currentTime,
+            duration: newVideo.duration
+          });
+        });
+
+        // Add timeupdate event listener
+        newVideo.addEventListener('timeupdate', () => {
+          window.ipcRenderer.send('video-time-update', {
+            currentTime: newVideo.currentTime,
+            duration: newVideo.duration
+          });
+        });
+        
+        // Set the source
+        newVideo.src = formattedPath;
+        
+        // Replace the old video element
+        currentVideo.parentNode.replaceChild(newVideo, currentVideo);
+        
+        // Update the reference
+        currentVideo = newVideo;
+        
+        // Try to play
+        try {
+          await newVideo.play();
+          console.log("Video playback started successfully");
+        } catch (playError) {
+          console.error("Error playing video:", playError);
+          // Try playing without autoplay
+          newVideo.autoplay = false;
+          await newVideo.play();
+          console.log("Video playback started on second attempt");
+        }
+      } catch (error) {
+        console.error("Error in playVideo function:", error);
+      }
+    }
+
+    // Listen for video path updates
+    window.ipcRenderer.on('play-video', (videoPath) => {
+      console.log("Video path received:", videoPath);
+      if (videoPath) {
+        playVideo(videoPath);
+      } else {
+        console.error("Received undefined video path");
       }
     });
+
+    // Listen for video control commands
+    window.ipcRenderer.on('video-control', (data) => {
+      if (!currentVideo) return;
+
+      const { action, time } = data;
+      console.log('Received video control:', action, time);
+
+      switch (action) {
+        case 'play':
+          currentVideo.play();
+          break;
+        case 'pause':
+          currentVideo.pause();
+          break;
+        case 'stop':
+          currentVideo.pause();
+          currentVideo.currentTime = 0;
+          break;
+        case 'seek':
+          if (typeof time === 'number') {
+            currentVideo.currentTime = time;
+          }
+          break;
+      }
+    });
+
+    // Listen for text updates
+    if (window.electronAPI && window.electronAPI.onTextUpdate) {
+      console.log('Setting up text update listener in screen1');
+      window.electronAPI.onTextUpdate((data) => {
+        console.log("Text update received in screen1:", data);
+        
+        const headerText1 = document.getElementById('header-text');
+        const headerText2 = document.getElementById('header-text2');
+        
+        // Clear existing text
+        headerText1.innerHTML = '';
+        headerText2.innerHTML = '';
+        
+        // Update text if provided
+        if (data.line1) {
+          const line1Span = document.createElement('span');
+          line1Span.textContent = data.line1;
+          headerText1.appendChild(line1Span);
+        }
+        
+        if (data.line2) {
+          const line2Span = document.createElement('span');
+          line2Span.textContent = data.line2;
+          headerText2.appendChild(line2Span);
+        }
+      });
+    } else {
+      console.error('electronAPI or onTextUpdate not available in screen1');
+    }
   </script>
 </body>
 </html>

@@ -2,110 +2,885 @@
 <html>
 <head>
   <title>Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    #container {
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --background: #f8fafc;
+      --surface: #ffffff;
+      --text: #1e293b;
+      --text-secondary: #64748b;
+      --border: #e2e8f0;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--background);
+      min-height: 100vh;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: var(--text);
+      line-height: 1.5;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      margin-top: 20px;
+      justify-content: center;
+      padding: 2rem;
+    }
+    /* #wrap-container{
+      display: flex;
+    } */
+    #wrap-container {
+      width: 100%;
+      max-width: 90%;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    #container {
+      background: var(--surface);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      width: 100%;
+      padding: 2rem;
+      display: flex;
+      gap: 2rem;
+      position: relative;
     }
 
     #lyrics {
-      width: 400px;
-      height: 200px;
-      margin-bottom: 10px;
+      width: 100%;
+      min-height: 150px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--text);
+      resize: vertical;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    .lyrics-btn {
-      display: block;
-      margin-bottom: 10px;
-      white-space: pre-line;
+    #lyrics:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    button {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.75rem 1.25rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s, transform 0.1s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    button:hover {
+      background-color: var(--primary-hover);
+      transform: translateY(-1px);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    #video-path, #propresenter-path {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
     }
 
     .lyrics-container {
       display: flex;
-      flex-wrap: wrap;
-      overflow-x: auto;
+      flex-direction: column;
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+      position: relative;
+      width: 100%;
     }
 
     .lyrics-column {
-      flex: 0 0 auto;
-      padding-right: 20px;
-      border: 1px solid black;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      position: relative;
     }
 
-    .lyrics-column > button {
+    .lyrics-btn {
+      flex: 0 1 auto;
+      min-width: 200px;
+      max-width: 300px;
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.75rem;
+      text-align: left;
+      font-size: 0.875rem;
+      position: relative;
+      transition: all 0.2s;
+      overflow: visible;
+    }
+
+    .lyrics-btn:hover {
+      background-color: var(--background);
+      border-color: var(--primary);
+    }
+
+    .lyrics-btn.active {
+      background-color: rgba(37, 99, 235, 0.1);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .line-number {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      background: var(--background);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .hotkey {
+      position: absolute;
+      top: 0.5rem;
+      left: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--primary);
+      background: var(--background);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 500;
+      z-index: 1;
+    }
+
+    @media (max-width: 640px) {
+      #wrap-container {
+        padding: 1rem;
+      }
+
+      #container {
+        padding: 1.5rem;
+      }
+
+      .propresenter-browser {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+        padding-right: 0;
+        padding-bottom: 1.5rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .file-list {
+        max-height: 300px;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      .lyrics-column {
+        flex-direction: column;
+      }
+
+      .lyrics-btn {
+        max-width: 100%;
+      }
+    }
+
+    /* ProPresenter file browser styles */
+    .propresenter-browser {
+      width: 300px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      padding-right: 1.5rem;
+      margin-top: 0;
+      border-top: none;
+      padding-top: 0;
+    }
+
+    .search-container {
+      margin-bottom: 1rem;
+    }
+
+    .search-input {
       width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .file-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      max-height: calc(100vh - 200px);
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      padding: 0.75rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .file-item:hover {
+      border-color: var(--primary);
+      background: var(--background);
+    }
+
+    .file-icon {
+      margin-right: 0.75rem;
+      color: var(--primary);
+    }
+
+    .file-name {
+      flex: 1;
+      font-size: 0.875rem;
+    }
+
+    .file-date {
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+    }
+
+    .main-content {
+      flex: 1;
+    }
+
+    .video-controls {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #f8f8f8;
+      border-radius: 4px;
+    }
+
+    .video-info {
+      margin-bottom: 10px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .progress-container {
+      width: 100%;
+      background-color: #ddd;
+      height: 20px;
+      border-radius: 10px;
+      margin: 10px 0;
+      position: relative;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background-color: #4CAF50;
+      border-radius: 10px;
+      width: 0%;
+      transition: width 0.1s linear;
+    }
+
+    .time-display {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .control-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .control-buttons button {
+      flex: 1;
+    }
+
+    .control-buttons button.play-pause {
+      background-color: #2196F3;
+    }
+
+    .control-buttons button.play-pause:hover {
+      background-color: #1976D2;
+    }
+
+    .control-buttons button.stop {
+      background-color: #f44336;
+    }
+
+    .control-buttons button.stop:hover {
+      background-color: #d32f2f;
     }
   </style>
 </head>
 <body>
-
-  <div id="container">
-    <textarea id="lyrics" placeholder="Enter song lyrics here" rows="10" cols="50"></textarea>
-    <div>
-      <button onclick="clearText()">Clear Text</button>
-      <button onclick="splitLyrics()">Split Lyrics</button>
-    </div>
-    <button id="select-video">Select Video</button>
-    <p id="video-path">No video selected</p>
+  <div id="wrap-container">
   
-    <div id="lyrics-container" class="lyrics-container"></div>
-  </div>
+  <div id="container">
+    <!-- ProPresenter file browser section -->
+    <div id="propresenter-browser" class="propresenter-browser" style="display: none;">
+      <div class="search-container">
+        <input type="text" id="file-search" class="search-input" placeholder="Search ProPresenter files...">
+      </div>
+      <div id="file-list" class="file-list"></div>
+    </div>
 
+    <div class="main-content">
+      <textarea id="lyrics" placeholder="Enter song lyrics here" rows="10" cols="50"></textarea>
+      <div class="button-group">
+        <button onclick="clearText()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+          </svg>
+          Clear Text
+        </button>
+        <button onclick="splitLyrics()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+          Split Lyrics
+        </button>
+
+        <button id="select-video">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+          </svg>
+          Select Video
+        </button>
+        <button id="select-propresenter">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+          </svg>
+          Select ProPresenter File
+        </button>
+        <button id="browse-propresenter">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+          </svg>
+          Browse ProPresenter Playlist Folder
+        </button>
+      </div>
+      <p id="video-path">No video selected</p>
+      <p id="propresenter-path">No ProPresenter file selected</p>
+    </div>
+  </div>
+  <div id="lyrics-container" class="lyrics-container"></div>
+  
+  </div>
+  <div class="video-controls">
+    <div class="video-info">
+      <span id="videoStatus">No video selected</span>
+    </div>
+    <div class="progress-container">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="time-display">
+      <span id="currentTime">0:00</span>
+      <span id="duration">0:00</span>
+    </div>
+    <div class="control-buttons">
+      <button class="play-pause" onclick="togglePlay()">Play/Pause</button>
+      <button class="stop" onclick="stopVideo()">Stop</button>
+    </div>
+  </div>
   <script>
     const selectVideoBtn = document.getElementById('select-video');
+    const selectProPresenterBtn = document.getElementById('select-propresenter');
     const videoPathElement = document.getElementById('video-path');
+    const propresenterPathElement = document.getElementById('propresenter-path');
+    let currentSlideIndex = 0;
+    let slides = [];
     
     selectVideoBtn.addEventListener('click', async () => {
-      const filePath = await window.electronAPI.openFile();
-      if (filePath) {
-        videoPathElement.innerText = `Selected Video Path: ${filePath}`;
-        // Send the selected file path to the screen window for playback
-        window.ipcRenderer.send('play-video', filePath);
+      try {
+        const filePath = await window.electronAPI.openFile('video');
+        if (filePath) {
+          videoPathElement.innerText = `Selected Video Path: ${filePath}`;
+          // Send the video path to the main process
+          window.electronAPI.sendVideoPath(filePath);
+        }
+      } catch (error) {
+        console.error('Error selecting video:', error);
       }
     });
+
+    selectProPresenterBtn.addEventListener('click', async () => {
+      try {
+        const filePath = await window.electronAPI.openFile('propresenter');
+        if (filePath) {
+          console.log('Selected file:', filePath);
+          propresenterPathElement.innerText = `Selected ProPresenter File: ${filePath}`;
+          const content = await window.electronAPI.readFile(filePath);
+          console.log('File content length:', content.length);
+          processProPresenterFile(content);
+        }
+      } catch (error) {
+        console.error('Error selecting ProPresenter file:', error);
+      }
+    });
+
+    function processProPresenterFile(content) {
+      console.log('Processing ProPresenter file...');
+      
+      // Extract all PlainText and hotKey pairs using regex
+      const regex = /<RVDisplaySlide[^>]*hotKey="([^"]*)"[^>]*>.*?<NSString rvXMLIvarName="PlainText">([^<]*)<\/NSString>/gs;
+      let match;
+      let allText = '';
+      let matchCount = 0;
+      let currentHotKey = null;
+      
+      while ((match = regex.exec(content)) !== null) {
+        matchCount++;
+        const hotKey = match[1];
+        const plainText = match[2];
+        console.log('Found slide with hotkey:', hotKey);
+        try {
+          // Decode base64 text and handle UTF-8 encoding
+          const decodedText = decodeURIComponent(escape(atob(plainText)));
+          console.log('Decoded text:', decodedText.substring(0, 50) + '...');
+          
+          // Split into lines and process each line
+          const lines = decodedText.split('\n').map(line => line.trim()).filter(line => line);
+          
+          // If hotkey is empty, use the previous hotkey
+          if (!hotKey && currentHotKey) {
+            // Add each line with proper spacing
+            lines.forEach(line => {
+              allText += line + '\n';
+            });
+          } else {
+            if (currentHotKey) {
+              allText += '\n\n'; // Add paragraph break
+            }
+            currentHotKey = hotKey;
+            allText += `[${hotKey}]\n`;
+            // Add each line with proper spacing
+            lines.forEach(line => {
+              allText += line + '\n';
+            });
+          }
+        } catch (error) {
+          console.error('Error decoding slide text:', error);
+        }
+      }
+      
+      console.log('Total matches found:', matchCount);
+      console.log('Final text length:', allText.length);
+      
+      if (allText.length === 0) {
+        console.error('No slides found in the file');
+        return;
+      }
+      
+      // Set the text in the textarea and call splitLyrics
+      document.getElementById('lyrics').value = allText;
+      splitLyrics();
+    }
+
+    function displaySlides() {
+      const lyricsContainer = document.getElementById('lyrics-container');
+      lyricsContainer.innerHTML = '';
+      
+      // Create a column for the buttons
+      const columnDiv = document.createElement('div');
+      columnDiv.className = 'lyrics-column';
+      
+      slides.forEach((slide, index) => {
+        const btn = document.createElement('button');
+        btn.className = 'lyrics-btn';
+        btn.textContent = slide.text;
+        
+        // Add hotkey indicator if present
+        if (slide.hotKey) {
+          const hotkeySpan = document.createElement('span');
+          hotkeySpan.className = 'hotkey';
+          hotkeySpan.textContent = slide.hotKey;
+          btn.appendChild(hotkeySpan);
+        }
+        
+        // Add line number
+        const lineNumberSpan = document.createElement('span');
+        lineNumberSpan.className = 'line-number';
+        lineNumberSpan.textContent = `${slide.lineNumber1}-${slide.lineNumber2}`;
+        btn.appendChild(lineNumberSpan);
+        
+        btn.onclick = () => {
+          currentSlideIndex = index;
+          const lines = slide.text.split('\n');
+          const line1 = lines[0] || '';
+          const line2 = lines[1] || '';
+          window.electron.sendTextUpdate({ 
+            line1, 
+            line2,
+            lineNumber1: slide.lineNumber1,
+            lineNumber2: slide.lineNumber2,
+            paragraphIndex: index,
+            fullLyrics: slide.text
+          });
+        };
+        
+        columnDiv.appendChild(btn);
+      });
+      
+      lyricsContainer.appendChild(columnDiv);
+    }
+
     function splitLyrics() {
+      console.log('Splitting lyrics...');
       var lyrics = document.getElementById('lyrics').value;
+      console.log('Lyrics length:', lyrics.length);
       var paragraphs = lyrics.split('\n\n');
+      console.log('Number of paragraphs:', paragraphs.length);
       var lyricsContainer = document.getElementById('lyrics-container');
       lyricsContainer.innerHTML = '';
-
-      paragraphs.forEach(paragraph => {
+      
+      let lineCounter = 1; // Start counting from line 1
+      let allButtons = []; // Store all buttons for keyboard navigation
+      let currentHotKey = null;
+      
+      paragraphs.forEach((paragraph, pIndex) => {
         var trimmedParagraph = paragraph.trim();
         if (trimmedParagraph !== '') {
           var columnDiv = document.createElement('div');
           columnDiv.className = 'lyrics-column';
+          columnDiv.dataset.paragraphIndex = pIndex;
 
           var lines = trimmedParagraph.split('\n');
+          // Extract hotkey if present in the first line
+          const hotKeyMatch = lines[0].match(/\[(.*?)\]/);
+          const hotKey = hotKeyMatch ? hotKeyMatch[1] : null;
+          
+          // If there's a hotkey, update the current hotkey
+          if (hotKey) {
+            currentHotKey = hotKey;
+          }
+          
+          // Remove the hotkey line and empty lines
+          lines = lines.filter(line => {
+            const trimmed = line.trim();
+            return trimmed && !trimmed.match(/^\[.*\]$/);
+          });
+
+          // Process lines in pairs
           for (let i = 0; i < lines.length; i += 2) {
             let line1 = lines[i] ? lines[i].trim() : '';
-            let line2 = lines[i + 1] ? lines[i + 1].trim() : '';
-            let combinedLines = line1 + '\n' + line2;
+            let line2 = (i + 1 < lines.length) ? lines[i + 1].trim() : '';
+            
+            // Skip if both lines are empty
+            if (!line1 && !line2) continue;
+            
+            // Current line numbers
+            const lineNumber1 = lineCounter + i;
+            const lineNumber2 = lineCounter + i + 1;
+            
+            // Ensure proper line break between lines
+            let combinedLines = line1 + (line2 ? '\n' + line2 : '');
 
-            if (combinedLines !== '\n') {
+            if (combinedLines.trim() !== '') {
               let btn = document.createElement('button');
               btn.className = 'lyrics-btn';
               btn.textContent = combinedLines;
-              btn.onclick = () => {
-                
-                window.electron.sendTextUpdate({ line1, line2 }); // Send text to main process
+              btn.style.fontFamily = 'Arial Unicode MS, Noto Sans Tamil, sans-serif';
+              btn.style.whiteSpace = 'pre-line'; // Preserve line breaks
+              btn.style.paddingLeft = '3.5rem'; // Add padding for hotkey
+              
+              // Add hotkey indicator only on the first button of the paragraph
+              if (currentHotKey && i === 0) {
+                const hotkeySpan = document.createElement('span');
+                hotkeySpan.className = 'hotkey';
+                hotkeySpan.textContent = currentHotKey;
+                btn.appendChild(hotkeySpan);
+              }
+              
+              // Add line number indicator
+              let lineNumberSpan = document.createElement('span');
+              lineNumberSpan.className = 'line-number';
+              lineNumberSpan.textContent = `${lineNumber1}-${lineNumber2}`;
+              btn.appendChild(lineNumberSpan);
+              
+              // Store button data
+              const buttonData = {
+                button: btn,
+                line1,
+                line2,
+                lineNumber1,
+                lineNumber2,
+                paragraphIndex: pIndex,
+                hotKey: currentHotKey
               };
+              allButtons.push(buttonData);
+              
+              btn.onclick = () => {
+                // Remove active class from all buttons
+                allButtons.forEach(b => b.button.classList.remove('active'));
+                // Add active class to clicked button
+                btn.classList.add('active');
+                
+                // Get the full paragraph text
+                const fullParagraph = lines.join('\n');
+                
+                // Send text update to both screens
+                window.electronAPI.sendTextUpdate({ 
+                  line1, 
+                  line2,
+                  lineNumber1,
+                  lineNumber2,
+                  paragraphIndex: pIndex,
+                  fullLyrics: fullParagraph
+                });
+              };
+              
               columnDiv.appendChild(btn);
             }
           }
-
+          
+          // Update line counter for next paragraph
+          lineCounter += lines.length + 1; // +1 for the paragraph separator
+          
           lyricsContainer.appendChild(columnDiv);
         }
       });
+      
+      // Add keyboard navigation
+      document.addEventListener('keydown', (event) => {
+        const activeButton = document.querySelector('.lyrics-btn.active');
+        const activeIndex = allButtons.findIndex(b => b.button === activeButton);
+        
+        if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+          if (activeIndex < allButtons.length - 1) {
+            allButtons[activeIndex + 1].button.click();
+          }
+        } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+          if (activeIndex > 0) {
+            allButtons[activeIndex - 1].button.click();
+          }
+        } else if (event.key === 'Home') {
+          if (allButtons.length > 0) {
+            allButtons[0].button.click();
+          }
+        } else if (event.key === 'End') {
+          if (allButtons.length > 0) {
+            allButtons[allButtons.length - 1].button.click();
+          }
+        }
+      });
+      
+      // Add hotkey listeners
+      document.addEventListener('keydown', (event) => {
+        const key = event.key.toUpperCase();
+        const buttonWithHotkey = allButtons.find(b => b.hotKey === key);
+        if (buttonWithHotkey) {
+          buttonWithHotkey.button.click();
+        }
+      });
+      
+      console.log('Finished splitting lyrics');
     }
 
     function clearText() {
-        window.electron.sendTextUpdate({ line1: "", line2: "" });
+      window.electronAPI.sendTextUpdate({ 
+        line1: "", 
+        line2: "",
+        lineNumber1: 0,
+        lineNumber2: 0,
+        paragraphIndex: -1,
+        fullLyrics: ""
+      });
+    }
+
+    // Add new variables for file browser
+    const browseProPresenterBtn = document.getElementById('browse-propresenter');
+    const propresenterBrowser = document.getElementById('propresenter-browser');
+    const fileSearchInput = document.getElementById('file-search');
+    const fileList = document.getElementById('file-list');
+    let allProPresenterFiles = [];
+
+    // Function to format file date
+    function formatDate(date) {
+      return new Date(date).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    // Function to create file item element
+    function createFileItem(file) {
+      const div = document.createElement('div');
+      div.className = 'file-item';
+      div.innerHTML = `
+        <svg class="file-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+          <path d="M14 2v6h6"/>
+        </svg>
+        <span class="file-name">${file.name}</span>
+      `;
+      
+      div.onclick = async () => {
+        const content = await window.electronAPI.readFile(file.path);
+        processProPresenterFile(content);
+        propresenterPathElement.innerText = `Selected ProPresenter File: ${file.path}`;
+      };
+      
+      return div;
+    }
+
+    // Function to filter and display files
+    function filterAndDisplayFiles(searchTerm = '') {
+      fileList.innerHTML = '';
+      const filteredFiles = allProPresenterFiles.filter(file => 
+        file.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      
+      filteredFiles.forEach(file => {
+        fileList.appendChild(createFileItem(file));
+      });
+    }
+
+    // Event listener for browse button
+    browseProPresenterBtn.addEventListener('click', async () => {
+      const folderPath = await window.electronAPI.openFolder();
+      if (folderPath) {
+        const files = await window.electronAPI.getProPresenterFiles(folderPath);
+        allProPresenterFiles = files;
+        propresenterBrowser.style.display = 'block';
+        filterAndDisplayFiles();
+      }
+    });
+
+    // Event listener for search input
+    fileSearchInput.addEventListener('input', (e) => {
+      filterAndDisplayFiles(e.target.value);
+    });
+
+    let isPlaying = false;
+    let currentVideoDuration = 0;
+    let currentVideoTime = 0;
+
+    // Format time in seconds to MM:SS
+    function formatTime(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = Math.floor(seconds % 60);
+      return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+
+    // Update progress bar and time display
+    function updateProgress(currentTime, duration) {
+      const progressBar = document.getElementById('progressBar');
+      const currentTimeDisplay = document.getElementById('currentTime');
+      const durationDisplay = document.getElementById('duration');
+      
+      const progress = (currentTime / duration) * 100;
+      progressBar.style.width = `${progress}%`;
+      
+      currentTimeDisplay.textContent = formatTime(currentTime);
+      durationDisplay.textContent = formatTime(duration);
+    }
+
+    // Handle video time updates from the client
+    window.electronAPI.onVideoTimeUpdate((data) => {
+      currentVideoTime = data.currentTime;
+      currentVideoDuration = data.duration;
+      updateProgress(currentVideoTime, currentVideoDuration);
+      
+      // Update video status
+      const videoStatus = document.getElementById('videoStatus');
+      videoStatus.textContent = `Playing: ${formatTime(currentVideoTime)} / ${formatTime(currentVideoDuration)}`;
+    });
+
+    // Toggle play/pause
+    function togglePlay() {
+      if (!currentVideoDuration) return;
+      
+      isPlaying = !isPlaying;
+      window.electronAPI.sendVideoControl({
+        action: isPlaying ? 'play' : 'pause'
+      });
+    }
+
+    // Stop video
+    function stopVideo() {
+      if (!currentVideoDuration) return;
+      
+      isPlaying = false;
+      window.electronAPI.sendVideoControl({
+        action: 'stop'
+      });
+    }
+
+    // Handle progress bar click
+    document.querySelector('.progress-container').addEventListener('click', (e) => {
+      if (!currentVideoDuration) return;
+      
+      const rect = e.target.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const percentage = x / rect.width;
+      const seekTime = percentage * currentVideoDuration;
+      
+      window.electronAPI.sendVideoControl({
+        action: 'seek',
+        time: seekTime
+      });
+    });
+
+    async function selectVideo() {
+      const videoPath = await window.electronAPI.openFile('video');
+      if (videoPath) {
+        document.getElementById('video-path').innerText = `Selected Video Path: ${videoPath}`;
+        isPlaying = true;
+      }
+    }
+
+    function updateText() {
+      const line1 = document.getElementById('line1').value;
+      const line2 = document.getElementById('line2').value;
+      window.electronAPI.sendVideoControl({ line1, line2 });
     }
   </script>
 </body>
 </html>
-
-
-

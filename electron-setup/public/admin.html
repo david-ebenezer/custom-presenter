@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Lyrics Viewer Admin</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f0f0f0;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .video-controls {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #f8f8f8;
+      border-radius: 4px;
+    }
+    .video-controls button {
+      margin: 5px;
+    }
+    .video-controls input[type="range"] {
+      width: 100%;
+      margin: 10px 0;
+    }
+    .video-info {
+      margin-top: 10px;
+      font-size: 0.9em;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Lyrics Viewer Admin</h1>
+    
+    <div class="form-group">
+      <label for="videoFile">Video File:</label>
+      <input type="text" id="videoFile" readonly>
+      <button onclick="selectVideo()">Select Video</button>
+    </div>
+
+    <div class="video-controls">
+      <h3>Video Controls</h3>
+      <button onclick="playVideo()">Play</button>
+      <button onclick="pauseVideo()">Pause</button>
+      <button onclick="stopVideo()">Stop</button>
+      <div>
+        <label for="videoTime">Time: <span id="currentTime">0:00</span> / <span id="duration">0:00</span></label>
+        <input type="range" id="videoTime" min="0" max="100" value="0" step="0.1">
+      </div>
+      <div class="video-info">
+        <p>Current video: <span id="currentVideoName">None</span></p>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="line1">Line 1:</label>
+      <input type="text" id="line1" oninput="updateText()">
+    </div>
+    
+    <div class="form-group">
+      <label for="line2">Line 2:</label>
+      <input type="text" id="line2" oninput="updateText()">
+    </div>
+  </div>
+
+  <script>
+    let currentVideoPath = null;
+
+    async function selectVideo() {
+      const result = await window.ipcRenderer.invoke('dialog:openFile', 'video');
+      if (result) {
+        currentVideoPath = result;
+        document.getElementById('videoFile').value = result;
+        document.getElementById('currentVideoName').textContent = result.split('/').pop();
+        window.ipcRenderer.send('play-video', result);
+      }
+    }
+
+    function updateText() {
+      const line1 = document.getElementById('line1').value;
+      const line2 = document.getElementById('line2').value;
+      window.ipcRenderer.send('update-text', { line1, line2 });
+    }
+
+    function playVideo() {
+      if (currentVideoPath) {
+        window.ipcRenderer.send('video-control', { action: 'play' });
+      }
+    }
+
+    function pauseVideo() {
+      if (currentVideoPath) {
+        window.ipcRenderer.send('video-control', { action: 'pause' });
+      }
+    }
+
+    function stopVideo() {
+      if (currentVideoPath) {
+        window.ipcRenderer.send('video-control', { action: 'stop' });
+      }
+    }
+
+    // Handle video time updates
+    const timeSlider = document.getElementById('videoTime');
+    timeSlider.addEventListener('input', (e) => {
+      if (currentVideoPath) {
+        const time = parseFloat(e.target.value);
+        window.ipcRenderer.send('video-control', { 
+          action: 'seek', 
+          time: time 
+        });
+      }
+    });
+
+    // Listen for video time updates from the client
+    window.ipcRenderer.on('video-time-update', (data) => {
+      const { currentTime, duration } = data;
+      document.getElementById('currentTime').textContent = formatTime(currentTime);
+      document.getElementById('duration').textContent = formatTime(duration);
+      timeSlider.max = duration;
+      timeSlider.value = currentTime;
+    });
+
+    function formatTime(seconds) {
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = Math.floor(seconds % 60);
+      return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+  </script>
+</body>
+</html> 

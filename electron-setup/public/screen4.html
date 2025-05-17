@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Lyrics Paragraph Context</title>
+  <style>
+    @font-face {
+      font-family: 'AnekTamil';
+      src: url('AnekTamil-VariableFont_wdth,wght.ttf') format('truetype');
+      font-weight: 100 900;
+      font-stretch: 50% 200%;
+    }
+    body,
+    html {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        position: relative;
+        background-color: black;
+    }
+    .content {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 1;
+        padding: 0 20px;
+    }
+    #paragraph-div {
+      font-family: 'AnekTamil', sans-serif;
+      font-size: 5vw;
+      font-weight: 600;
+      color: white;
+      text-align: center;
+      text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 8px #000000;
+      max-width: 90%;
+      width: 100%;
+      white-space: normal;
+      overflow-wrap: break-word;
+      line-height: 1.3;
+    }
+    
+    .highlight {
+      color: #FFD700; /* Gold color for highlighted lines */
+      font-weight: 700;
+    }
+    
+    #line-numbers {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-family: monospace;
+      color: #888;
+      font-size: 14px;
+      background-color: rgba(0,0,0,0.5);
+      padding: 5px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="content">
+    <div id="paragraph-div"></div>
+  </div>
+  <div id="line-numbers"></div>
+
+  <script>
+    // Function to check if text is English (only contains ASCII characters)
+    function isEnglish(text) {
+      return /^[\x00-\x7F]+$/.test(text);
+    }
+    
+    // Function to maximize font size while ensuring text fits within container
+    function maximizeFontSize(element) {
+      if (!element) return;
+      
+      const container = document.querySelector('.content');
+      const maxHeight = container.clientHeight * 0.95;
+      const maxWidth = container.clientWidth * 0.95;
+      
+      let minFontSize = 2;
+      let maxFontSize = 8;
+      let currentFontSize = minFontSize;
+      let bestFontSize = minFontSize;
+      
+      // Binary search to find the optimal font size
+      while (maxFontSize - minFontSize > 0.05) {
+        currentFontSize = (minFontSize + maxFontSize) / 2;
+        element.style.fontSize = currentFontSize + 'vw';
+        
+        // Check if the text fits within constraints
+        if (element.scrollHeight <= maxHeight && element.scrollWidth <= maxWidth) {
+          // Text fits, try larger
+          bestFontSize = currentFontSize;
+          minFontSize = currentFontSize;
+        } else {
+          // Text too big, try smaller
+          maxFontSize = currentFontSize;
+        }
+      }
+      
+      // Set to best found size
+      element.style.fontSize = bestFontSize + 'vw';
+      
+      // Fine-tune line height based on font size and content length
+      const contentLength = element.textContent.length;
+      const lineHeight = Math.max(1.1, Math.min(1.4, 1.4 - (bestFontSize * 0.02) - (contentLength * 0.001)));
+      element.style.lineHeight = lineHeight;
+      
+      console.log(`Optimized font size: ${bestFontSize}vw with line-height: ${lineHeight}`);
+    }
+
+    // Listen for text updates
+    if (window.electronAPI && window.electronAPI.onTextUpdate) {
+      window.electronAPI.onTextUpdate((data) => {
+        console.log("Lyrics data received for paragraph display:", data);
+        console.log("Full lyrics:", data.fullLyrics);
+        console.log("Current lines:", data.line1, data.line2);
+        
+        const paragraphDiv = document.getElementById('paragraph-div');
+        const lineNumbersDiv = document.getElementById('line-numbers');
+        paragraphDiv.innerHTML = '';
+        
+        // Update line numbers display
+        if (data.lineNumber1 && data.lineNumber2) {
+          lineNumbersDiv.textContent = `Lines: ${data.lineNumber1}-${data.lineNumber2}`;
+        } else {
+          lineNumbersDiv.textContent = '';
+        }
+
+        if (data.fullLyrics) {
+          // Split into paragraphs and find the current one
+          const paragraphs = data.fullLyrics.split('\n\n');
+          console.log("Number of paragraphs:", paragraphs.length);
+          console.log("Paragraphs:", paragraphs);
+          
+          let currentParagraph = '';
+          
+          // Find the paragraph containing the current lines
+          for (const paragraph of paragraphs) {
+            console.log("Checking paragraph:", paragraph);
+            const lines = paragraph.split('\n');
+            if (lines.some(line => {
+              const trimmedLine = line.trim();
+              const matches = trimmedLine === data.line1.trim() || trimmedLine === data.line2.trim();
+              console.log("Comparing:", trimmedLine, "with", data.line1.trim(), "or", data.line2.trim(), "Result:", matches);
+              return matches;
+            })) {
+              currentParagraph = paragraph;
+              console.log("Found matching paragraph:", currentParagraph);
+              break;
+            }
+          }
+          
+          if (currentParagraph) {
+            // Split into lines and process each line
+            const lines = currentParagraph.split('\n');
+            console.log("Processing lines:", lines);
+            const processedLines = [];
+            
+            // Check if we should show Tamil or English
+            const showTamil = !isEnglish(data.line1) || !isEnglish(data.line2);
+            console.log("Show Tamil:", showTamil);
+            
+            for (let i = 0; i < lines.length; i++) {
+              const line = lines[i].trim();
+              if (!line) continue;
+              
+              // If showing Tamil, only include non-English lines
+              // If showing English, only include English lines
+              const isLineEnglish = isEnglish(line);
+              console.log("Line:", line, "Is English:", isLineEnglish);
+              
+              if ((showTamil && !isLineEnglish) || (!showTamil && isLineEnglish)) {
+                // Highlight current lines
+                if (line === data.line1.trim() || line === data.line2.trim()) {
+                  processedLines.push(`<span class="highlight">${line}</span>`);
+                  console.log("Highlighting line:", line);
+                } else {
+                  processedLines.push(line);
+                  console.log("Adding line:", line);
+                }
+              }
+            }
+            
+            // Display the processed paragraph
+            const finalHtml = processedLines.join('<br>');
+            console.log("Final HTML:", finalHtml);
+            paragraphDiv.innerHTML = finalHtml;
+            maximizeFontSize(paragraphDiv);
+          } else {
+            console.log("No matching paragraph found");
+            // Fallback to showing just the current lines
+            const lines = [data.line1, data.line2].filter(line => line.trim());
+            paragraphDiv.innerHTML = lines.map(line => 
+              `<span class="highlight">${line}</span>`
+            ).join('<br>');
+            maximizeFontSize(paragraphDiv);
+          }
+        }
+      });
+    } else {
+      console.error('electronAPI or onTextUpdate not available in screen4');
+    }
+
+    // Resize when window size changes
+    window.addEventListener('resize', () => {
+      const paragraphDiv = document.getElementById('paragraph-div');
+      if (paragraphDiv.innerHTML) {
+        maximizeFontSize(paragraphDiv);
+      }
+    });
+  </script>
+</body>
+</html>
